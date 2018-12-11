@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { LocaljsonService } from '../localjson.service';
+import { DataService } from '../data.service';
 import { Router } from '../../../node_modules/@angular/router';
 
 @Component({
@@ -9,7 +9,7 @@ import { Router } from '../../../node_modules/@angular/router';
 })
 export class IssuesComponent implements OnInit {
 
-  constructor(private _localjsonService: LocaljsonService, private _router: Router) { }
+  constructor(private _DataService: DataService, private _router: Router) { }
   issues: any;
   default: boolean;
   upd8 = false;
@@ -27,7 +27,14 @@ export class IssuesComponent implements OnInit {
   sevfilter = 'none';
 
   ngOnInit() {
-    this.issues = this._localjsonService.getJSON();
+    // this.issues = this._DataService.getIssues();
+    this._DataService.getIssues()
+    .subscribe(res => {
+     // console.log(res);
+      this.issues = res;
+    }, err => {
+      console.log(err);
+    });
     if (this.issues.length < 2) {
       this.default = true;
     } else {
@@ -49,12 +56,13 @@ export class IssuesComponent implements OnInit {
   }
 
   delete(id: any) {
-    for (let i = 1; i < this.issues.length; i++) {
-      if ( this.issues[i].Id === id ) {
-        this.issues.splice(i, 1);
+    this._DataService.deleteIssue(id)
+    .subscribe(res => {
+        this.ngOnInit();
+      }, (err) => {
+        console.log(err);
       }
-    }
-    this._localjsonService.setJSON(this.issues);
+    );
     if (this.issues.length < 2) {
       // this._router.navigate(['/issues']);
       this.default = true;

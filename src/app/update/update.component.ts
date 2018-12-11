@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { LocaljsonService } from '../localjson.service';
+import { DataService } from '../data.service';
 import { Router } from '../../../node_modules/@angular/router';
 
 @Component({
@@ -12,19 +12,20 @@ export class UpdateComponent implements OnInit {
 
   @Output() public upevent = new EventEmitter();
   issues: any;
-  constructor(private _localjsonService: LocaljsonService, private _router: Router) { }
+  constructor(private _DataService: DataService, private _router: Router) { }
 
   ngOnInit() {
-    this.issues = this._localjsonService.getJSON();
+    this.issues = this._DataService.getIssues();
   }
 
   update(data) {
-    for (let i = 0; i < this.issues.length; i++) {
-      if (data.Id === this.issues[i].Id) {
-        this.issues[i] = data;
-      }
+    console.log(data);
+    this._DataService.updateIssue(data).subscribe(res => {
+      this._router.navigate(['/issues']);
+    }, (err) => {
+      console.log(err);
     }
-    this._localjsonService.setJSON(this.issues);
+  );
     this.upevent.emit( false );
     // this._router.navigate(['issues']);
   }
